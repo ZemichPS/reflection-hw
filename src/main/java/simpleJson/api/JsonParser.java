@@ -1,12 +1,11 @@
 package simpleJson.api;
 
+import simpleJson.structure.ObjectNode;
+
 import java.util.Objects;
 
 public interface JsonParser {
+    ObjectNode parse(String json);
 
-    void parse(String json);
-
-    Objects getByName(String objectName);
-
-    int getObjectCount();
+    void validate(String json);
 }

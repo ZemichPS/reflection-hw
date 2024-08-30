@@ -26,6 +26,6 @@ public class ArrayNode extends Node{
 
     @Override
     public String toString() {
-        return "Array node: " + name + " children: " + childNodes;
+        return childNodes.toString();
     }
 }

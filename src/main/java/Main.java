@@ -1,13 +1,34 @@
-import simpleJson.impl.typedes.Tokenizer;
-import simpleJson.structure.Node;
+import simpleJson.api.JsonParser;
+import simpleJson.impl.JsonParserImpl;
 import simpleJson.structure.ObjectNode;
 
 public class Main {
     public static void main(String[] args) {
-        Tokenizer tokenizer = new Tokenizer();
-        ObjectNode root = tokenizer.parse(getSuperHard());
-        System.out.println(root);
+
     }
+
+    public static String testSource() {
+        return """
+                {
+                  "id": "c0a801b3-16c4-42a8-b49a-122b93ff7a31",
+                  "name": "John Doe",
+                  "age": 35,
+                  "address": {
+                    "street": "123 Main St",
+                    "city": "Springfield",
+                    "country": "USA",
+                    "buildingNumber": "4A",
+                    "postalCode": 12345
+                  },
+                  "permissions": [
+                    "READ_REPORT",
+                    "WRITE_REPORT",
+                    "EDIT_REPORT"
+                  ]
+                }
+                """;
+    }
+
 
     static String getHardSource() {
         return """
@@ -69,7 +90,7 @@ public class Main {
 
     static String getMiddleSource() {
         return """
-                {
+                
                   "company": {
                     "name": "Tech Innovators Inc.",
                     "address": {

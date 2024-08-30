@@ -35,9 +35,8 @@ public class ObjectNode extends Node {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Object node");
         if(Objects.nonNull(name)) sb.append(": ").append(name);
-        sb.append("child:").append(children);
+        sb.append(":").append(children);
         return sb.toString();
     }
 }

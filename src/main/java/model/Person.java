@@ -2,22 +2,18 @@ package model;
 
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @Data
+@Builder
 public class Person {
+    private UUID id;
     private String name;
     private int age;
-    private boolean admin;
-
-    @Data
-    public class Address {
-        private String country;
-        private String region;
-        private String city;
-        private String street;
-        private int buildingNumber;
-        private String zip;
-
-    }
+    private Address address;
+    List<Permission> permissions;
 }
 
 

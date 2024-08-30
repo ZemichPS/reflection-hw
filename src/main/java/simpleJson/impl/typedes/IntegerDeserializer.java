@@ -5,15 +5,14 @@ import simpleJson.api.JsonTypeDeserializer;
 public class IntegerDeserializer implements JsonTypeDeserializer {
     @Override
     public Integer getObject(Object obj) throws IllegalArgumentException {
-        try {
-            return (Integer) obj;
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
+        if (obj instanceof Integer integer){
+            return integer;
         }
+        throw new IllegalArgumentException("Type error. Actual type: " + obj.getClass());
     }
 
     @Override
     public String getType() {
-        return "String";
+        return "Integer";
     }
 }
