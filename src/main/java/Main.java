@@ -1,25 +1,33 @@
 import simpleJson.impl.typedes.Tokenizer;
+import simpleJson.structure.Node;
+import simpleJson.structure.ObjectNode;
 
 public class Main {
     public static void main(String[] args) {
         Tokenizer tokenizer = new Tokenizer();
-        tokenizer.tokenize(getSourceLight());
-        String[] zalupa = (String[]) tokenizer.getWorkMap().get("permissions");
-        System.out.println(zalupa);
+        ObjectNode root = tokenizer.parse(getSuperHard());
+        System.out.println(root);
     }
 
-    static String getSource() {
+    static String getHardSource() {
         return """
                 {
                    "customer_id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
                    "customer_name": "Valeriy Hvasko",
                    "customer_address": "123 Main Street",
+                   "is_man": true,
+                   "has_children": false,
                    "age": 32,
                    "permissions": [
                      "create_report_scope",
                      "read_report_scope",
                      "edit_report_scope"
                    ],
+                    "address": {
+                    "city": "Ostrovec",
+                    "region": "Grono",
+                    "zip": 231201
+                  },
                    "product_list": [
                      {
                        "id": "d2b2e4a7-1c2c-4b9c-bd22-0d8415f5a571",
@@ -58,4 +66,305 @@ public class Main {
                 }
                 """;
     }
+
+    static String getMiddleSource() {
+        return """
+                {
+                  "company": {
+                    "name": "Tech Innovators Inc.",
+                    "address": {
+                      "street": "123 Innovation Way",
+                      "city": "Silicon Valley",
+                      "state": "CA",
+                      "zipCode": "94043"
+                    },
+                    "departments": [
+                      {
+                        "id": 101,
+                        "name": "Engineering",
+                        "manager": {
+                          "name": "Alice Johnson",
+                          "email": "alice.johnson@techinnovators.com"
+                        },
+                        "employees": [
+                          {
+                            "id": 1,
+                            "name": "John Doe",
+                            "role": "Software Engineer",
+                            "skills": ["Java", "Python", "Cloud Computing"]
+                          },
+                          {
+                            "id": 2,
+                            "name": "Jane Smith",
+                            "role": "DevOps Engineer",
+                            "skills": ["AWS", "Docker", "CI/CD"]
+                          }
+                        ]
+                      },
+                      {
+                        "id": 102,
+                        "name": "Marketing",
+                        "manager": {
+                          "name": "Bob Williams",
+                          "email": "bob.williams@techinnovators.com"
+                        },
+                        "employees": [
+                          {
+                            "id": 3,
+                            "name": "Emily Davis",
+                            "role": "Marketing Specialist",
+                            "skills": ["SEO", "Content Marketing", "Social Media"]
+                          }
+                        ]
+                      }
+                    ],
+                    "projects": [
+                      {
+                        "id": 1001,
+                        "name": "AI Research",
+                        "departmentId": 101,
+                        "budget": 500000,
+                        "status": "In Progress"
+                      },
+                      {
+                        "id": 1002,
+                        "name": "New Website Launch",
+                        "departmentId": 102,
+                        "budget": 150000,
+                        "status": "Completed"
+                      }
+                    ]
+                  }
+                }
+                """;
+    }
+
+    static String getSuperHard() {
+        return """
+                {
+                  "id": 1,
+                  "name": "RootObject",
+                  "metadata": {
+                    "version": "1.0.0",
+                    "author": "Your Name",
+                    "creationDate": "2024-08-30"
+                  },
+                  "configurations": [
+                    {
+                      "id": 1001,
+                      "type": "TypeA",
+                      "settings": {
+                        "enabled": true,
+                        "threshold": 0.75,
+                        "options": ["option1", "option2", "option3"],
+                        "subSettings": {
+                          "mode": "advanced",
+                          "parameters": {
+                            "param1": 100,
+                            "param2": 200
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": 1002,
+                      "type": "TypeB",
+                      "settings": {
+                        "enabled": false,
+                        "threshold": 0.85,
+                        "options": ["option4", "option5"],
+                        "subSettings": {
+                          "mode": "basic",
+                          "parameters": {
+                            "param1": 300,
+                            "param2": 400,
+                            "param3": {
+                              "subParam1": 500,
+                              "subParam2": 600
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "users": [
+                    {
+                      "userId": 1,
+                      "username": "user1",
+                      "details": {
+                        "email": "user1@example.com",
+                        "roles": ["admin", "editor"],
+                        "profile": {
+                          "firstName": "John",
+                          "lastName": "Doe",
+                          "age": 30,
+                          "addresses": [
+                            {
+                              "type": "home",
+                              "street": "123 Main St",
+                              "city": "Anytown",
+                              "state": "CA",
+                              "zip": "12345"
+                            },
+                            {
+                              "type": "work",
+                              "street": "456 Office Rd",
+                              "city": "Businesstown",
+                              "state": "NY",
+                              "zip": "67890"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "userId": 2,
+                      "username": "user2",
+                      "details": {
+                        "email": "user2@example.com",
+                        "roles": ["user"],
+                        "profile": {
+                          "firstName": "Jane",
+                          "lastName": "Smith",
+                          "age": 25,
+                          "addresses": [
+                            {
+                              "type": "home",
+                              "street": "789 Suburbia Blvd",
+                              "city": "Villagetown",
+                              "state": "TX",
+                              "zip": "54321"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "logs": [
+                    {
+                      "logId": 1,
+                      "timestamp": "2024-08-30T08:45:00Z",
+                      "message": "System started",
+                      "details": {
+                        "severity": "INFO",
+                        "context": {
+                          "module": "startup",
+                          "function": "initialize"
+                        }
+                      }
+                    },
+                    {
+                      "logId": 2,
+                      "timestamp": "2024-08-30T09:00:00Z",
+                      "message": "User login",
+                      "details": {
+                        "severity": "WARN",
+                        "context": {
+                          "module": "authentication",
+                          "function": "validateUser",
+                          "user": {
+                            "userId": 1,
+                            "username": "user1"
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "projects": [
+                    {
+                      "projectId": 101,
+                      "projectName": "Project Alpha",
+                      "milestones": [
+                        {
+                          "milestoneId": 1,
+                          "name": "Design",
+                          "deadline": "2024-09-15",
+                          "tasks": [
+                            {
+                              "taskId": 1,
+                              "description": "Create wireframes",
+                              "status": "completed",
+                              "assignee": {
+                                "userId": 1,
+                                "username": "user1"
+                              }
+                            },
+                            {
+                              "taskId": 2,
+                              "description": "Review designs",
+                              "status": "pending",
+                              "assignee": {
+                                "userId": 2,
+                                "username": "user2"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "milestoneId": 2,
+                          "name": "Development",
+                          "deadline": "2024-11-01",
+                          "tasks": [
+                            {
+                              "taskId": 3,
+                              "description": "Set up environment",
+                              "status": "in-progress",
+                              "assignee": {
+                                "userId": 1,
+                                "username": "user1"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "projectId": 102,
+                      "projectName": "Project Beta",
+                      "milestones": [
+                        {
+                          "milestoneId": 3,
+                          "name": "Planning",
+                          "deadline": "2024-10-01",
+                          "tasks": [
+                            {
+                              "taskId": 4,
+                              "description": "Define scope",
+                              "status": "pending",
+                              "assignee": {
+                                "userId": 2,
+                                "username": "user2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "settings": {
+                    "general": {
+                      "theme": "dark",
+                      "language": "en",
+                      "notifications": {
+                        "email": true,
+                        "sms": false
+                      }
+                    },
+                    "security": {
+                      "passwordPolicy": {
+                        "minLength": 8,
+                        "requireNumbers": true,
+                        "requireSpecialCharacters": true
+                      },
+                      "twoFactorAuthentication": {
+                        "enabled": true,
+                        "methods": ["sms", "email"]
+                      }
+                    }
+                  }
+                }
+                """;
+    }
+
+
 }

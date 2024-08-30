@@ -1,6 +1,10 @@
 package simpleJson.impl.typedes;
 
 import simpleJson.exception.ParseException;
+import simpleJson.structure.ArrayNode;
+import simpleJson.structure.Node;
+import simpleJson.structure.ObjectNode;
+import simpleJson.structure.ValueNode;
 
 import java.util.*;
 
@@ -8,16 +12,22 @@ public class Tokenizer {
     private String json;
     private int cursor = 0;
     private String currentKey = "";
-    private final Map<String, Object> workMap = new TreeMap<>();
-    private String jsonObjectName = "";
-    int levelDeep = 0;
+
+    private Deque<Node> stack = new ArrayDeque<>();
+    private ObjectNode rootNode = null;
+
+    private String EMPTY_TOKEN_KEY_ERROR_MESSAGE = "The parser encountered an unexpected scenario. Key is empty";
+    private String STACK_IS_EMPTY_ERROR_MESSAGE = "The parser encountered an unexpected scenario. Stack is empty";
 
 
-    public void tokenize(String input) {
-        json = input.substring(1, input.lastIndexOf("}"))
-                .trim().replaceAll("\\s{2,}", "");
+    public ObjectNode parse(String input) {
+        rootNode = new ObjectNode("root");
+        stack.push(rootNode);
+        json = input.substring(1, input.length() - 1);
+        json = json.trim()
+                .replaceAll("\\s{2,}", "");
         doWork();
-        System.out.println("Мапа: " + workMap);
+        return rootNode;
     }
 
     private boolean hasNext() {
@@ -25,54 +35,84 @@ public class Tokenizer {
     }
 
     private void doWork() {
-        int currentNodeLevel = 0;
         while (hasNext()) {
             switch (json.charAt(cursor)) {
                 case '"' -> handleMemberName();
-                case '{' -> handleJsonObject();
-                case '[' -> handleList();
+                case '{' -> handleStartJsonObject();
+                case '}' -> handleEndJsonObject();
+                case '[' -> handleStartList();
+                case ']' -> handleEndList();
                 case ':' -> checkAndTryToHandlePrimitive();
                 default -> cursor++;
             }
         }
     }
 
-    private void handleJsonObject() {
+    private void handleStartJsonObject() {
         cursor++;
-        if (!currentKey.isEmpty()) {
-            jsonObjectName = currentKey;
-            currentKey = "";
-        }
+        ObjectNode newobjectNode = new ObjectNode();
+        if (!currentKey.isEmpty()) newobjectNode.setName(currentKey);
+        addToCurrentObjectNote(newobjectNode);
+        stack.push(newobjectNode);
+        currentKey = "";
         doWork();
+    }
+
+    private void handleEndJsonObject() {
+        if (stack.isEmpty()) throw new ParseException(STACK_IS_EMPTY_ERROR_MESSAGE);
+        stack.pop();
+        cursor++;
+    }
+
+    private void handleEndList() {
+        if (stack.isEmpty()) throw new ParseException(STACK_IS_EMPTY_ERROR_MESSAGE);
+        cursor++;
+        stack.pop();
     }
 
     void checkAndTryToHandlePrimitive() {
         String forbiddenChars = "{}[],";
-        char nextChar = json.charAt(cursor + 1);
+        cursor++;
 
-        // TODO КОСТЫЛЬ
-        if (nextChar == ' ') nextChar = json.charAt(cursor + 1);
-        if (nextChar == ' ') nextChar = json.charAt(cursor + 2);
-        if (nextChar == ' ') nextChar = json.charAt(cursor + 3);
+        while (Character.isWhitespace(json.charAt(cursor))) {
+            cursor++;
+        }
+        char nextChar = json.charAt(cursor);
 
         if (forbiddenChars.indexOf(nextChar) != -1) {
-            cursor++;
             return;
         }
 
+        if (currentKey.isEmpty()) throw new ParseException(EMPTY_TOKEN_KEY_ERROR_MESSAGE);
         Object value = handlePrimitive();
-        if (currentKey.isEmpty()) throw new
-
-                ParseException("The parser encountered an unexpected scenario");
-        workMap.put(currentKey, value);
+        addToCurrentObjectNote(new ValueNode(value));
         currentKey = "";
     }
 
     private Object handlePrimitive() {
-        String value = json.substring(cursor, json.indexOf(",", cursor));
-        cursor = cursor + value.length() + 1;
-        value = value.replaceAll(":", "").trim();
-        if (value.contains("\"")) value = value.replaceAll("\"", "");
+        String value = "";
+        char firstValueChar = json.charAt(cursor);
+
+        if (firstValueChar == '"') {
+            value = json.substring(cursor + 1, json.indexOf('"', cursor + 1));
+            cursor = cursor + 2;
+        } else if (firstValueChar == '-' || Character.isDigit(firstValueChar)) {
+            int valueEndIndex = cursor + 1;
+
+            while (Character.isDigit(json.charAt(valueEndIndex)) || json.charAt(valueEndIndex) == '.' ||
+                    json.charAt(valueEndIndex) == 'e' || json.charAt(valueEndIndex) == 'E' ||
+                    json.charAt(valueEndIndex) == '-' || json.charAt(valueEndIndex) == '+') {
+                valueEndIndex++;
+            }
+            value = json.substring(cursor, valueEndIndex);
+        } else if (json.startsWith("true", cursor)) {
+            value = "true";
+        } else if (json.startsWith("false", cursor)) {
+            value = "false";
+        } else if (json.startsWith("null", cursor)) {
+            value = "null";
+        }
+        cursor = cursor + value.length();
         return value;
     }
 
@@ -83,28 +123,42 @@ public class Tokenizer {
         cursor = subIndex + 1;
     }
 
-    private Object handleDigits(int startIndex) {
-        return null;
-    }
+    private void handleStartList() {
+        if (currentKey.isEmpty()) throw new ParseException(EMPTY_TOKEN_KEY_ERROR_MESSAGE);
 
-    private void handleList() {
         int END_ARRAY_INDEX = json.indexOf(']', cursor + 1);
         String listSubString = json.substring(cursor + 1, END_ARRAY_INDEX);
 
         if (!listSubString.contains("{")) {
-            String[] primitives = listSubString.replaceAll("\"", "").split(",");
-            workMap.put(currentKey, primitives);
+            ArrayNode arrayNode = new ArrayNode(currentKey);
+            Arrays.stream(listSubString.replaceAll("\"", "")
+                            .split(","))
+                    .map(ValueNode::new)
+                    .forEachOrdered(arrayNode::addNode);
+
+            addToCurrentObjectNote(arrayNode);
             currentKey = "";
             cursor = END_ARRAY_INDEX + 1;
             return;
         } else {
+            ArrayNode arrayNode = new ArrayNode(currentKey);
+            addToCurrentObjectNote(arrayNode);
+            stack.push(arrayNode);
+            currentKey = "";
+            cursor++;
             doWork();
         }
-        char END_ARRAY_CHAR = json.charAt(END_ARRAY_INDEX);
         cursor++;
+
     }
 
-    public Map<String, Object> getWorkMap() {
-        return workMap;
+    private void addToCurrentObjectNote(Node node) {
+        if (stack.peek() instanceof ObjectNode top) {
+            top.addNode(currentKey, node);
+        } else if (stack.peek() instanceof ArrayNode top) {
+            top.addNode(node);
+        } else throw new ParseException("The parser encountered an unexpected scenario");
     }
+
+
 }
