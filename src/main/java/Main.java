@@ -1,5 +1,6 @@
 import model.Person;
 import model.Product;
+import model.ProductDto;
 import simpleJson.api.JsonDeserializer;
 import simpleJson.impl.JsonDeserializerImpl;
 import simpleJson.impl.JsonParserImpl;
@@ -21,8 +22,25 @@ public class Main {
                 )
         );
 
-        final Product product = jsonDeserializer.deserialize(testSimpleSource(), Product.class);
+        final ProductDto product = jsonDeserializer.deserialize(testSimpleSourceWithInheritance(), ProductDto.class);
         System.out.println(product);
+    }
+
+    public static String testSimpleSourceWithInheritance() {
+        return """
+                {
+                  "uuid": "b2c9a558-7b41-4d5e-8f62-7e4f522fa828",
+                  "name": "Smartphone",
+                  "description": "Latest model smartphone with advanced features",
+                  "price": 699.99,
+                  "sale": true,
+                  "supplier": {
+                    "id": 12345,
+                    "name": "Tech Supplies Inc.",
+                    "description": "Leading supplier of electronic gadgets"
+                  }
+                }
+                """;
     }
 
     public static String testSimpleSource() {

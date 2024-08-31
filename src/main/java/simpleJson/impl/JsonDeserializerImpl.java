@@ -21,7 +21,6 @@ public class JsonDeserializerImpl implements JsonDeserializer {
     private ObjectNode rootNode;
 
 
-
     private Map<String, JsonTypeDeserializer> jsonTypeDeserializerMap;
 
     public JsonDeserializerImpl(JsonParser jsonParser, List<JsonTypeDeserializer> typeDeserializers) {
@@ -45,52 +44,62 @@ public class JsonDeserializerImpl implements JsonDeserializer {
         return clazz.cast(targetObject);
     }
 
+    @Override
+    public void addJsonTypeDeserializer(JsonTypeDeserializer deserializer) {
+        jsonTypeDeserializerMap.put(deserializer.getType(), deserializer);
+    }
+
     private void doWork() {
         rootNode.getChildren().entrySet()
                 .forEach(entry -> {
                     String fieldName = entry.getKey();
                     Node node = entry.getValue();
-                    Class<?> fieldClazz = reflectionService.getTargetClassByFieldName(fieldName);
-                    Object fieldValue = getValue(node, fieldClazz);
                     try {
-                        reflectionService.setValueToField(fieldName, fieldValue);
-                    } catch (IllegalAccessException e) {
+                        doSome(fieldName, node);
+                    } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
                         throw new RuntimeException(e);
                     }
                 });
     }
 
-    private Object getValue(Node node, Class<?> clazz) {
-        if (node == null) throw new NullPointerException("Node is null");
+    private void doSome(String fieldName, Node node) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        Objects.requireNonNull(node, "Node is null");
 
         if (node instanceof ValueNode valueNode) {
-            return handle(valueNode, clazz);
+            handle(valueNode, fieldName);
         } else if (node instanceof ObjectNode objectNode) {
-            return handle(objectNode);
+            handle(objectNode);
         } else if (node instanceof ArrayNode arrayNode) {
-            return handle(arrayNode);
-        }
-        throw new DeserializeException("EXCEPTION!!!!!!!");
+            handle(arrayNode);
+        } else new DeserializeException("Node is not recognized");
     }
 
-    private Object handle(ObjectNode objectNode) {
-        String className = objectNode.getName();
-
-
-
-        objectNode.getChildren().entrySet().stream().forEach(entry -> {});
-        return new Object();
+    private void handle(ObjectNode objectNode) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        String fieldName = objectNode.getName();
+        reflectionService.createInnerObjectByFieldName(fieldName);
+        objectNode.getChildren().entrySet().forEach(entry -> {
+                    String fName = entry.getKey();
+                    Node node = entry.getValue();
+                    try {
+                        doSome(fName, node);
+                    } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
+        reflectionService.completeWorkWithNestedElement();
     }
 
-    private Object handle(ValueNode valueNode, Class<?> targetFieldType) {
+    private void handle(ValueNode valueNode, String fieldName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        Class<?> fieldClazz = reflectionService.getTargetClassByFieldName(fieldName);
         Object value = valueNode.getValue();
 
-        if (targetFieldType.isPrimitive()) {
+        if (fieldClazz.isPrimitive()) {
             if (valueNode.getValue().getClass().getSimpleName().equals("String")) {
-                return mapPrimitive(targetFieldType, String.valueOf(value));
+                value = mapPrimitive(fieldClazz, String.valueOf(value));
             }
-        }
-        return jsonTypeDeserializerMap.get(targetFieldType.getTypeName()).parseObject(value);
+        } else value = jsonTypeDeserializerMap.get(fieldClazz.getTypeName()).parseObject(value);
+        reflectionService.setValueToField(fieldName, value);
     }
 
     private Object handle(ArrayNode arrayNode) {

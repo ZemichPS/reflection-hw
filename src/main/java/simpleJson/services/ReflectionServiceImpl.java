@@ -35,7 +35,7 @@ public class ReflectionServiceImpl implements ReflectionService {
 
     @Override
     public Class<?> getTargetClassByFieldName(String fieldName) {
-        return Arrays.stream(this.target.getClass().getDeclaredFields())
+        return Arrays.stream(getCurrentObject().getClass().getDeclaredFields())
                 .filter(field -> field.getName().equals(fieldName))
                 .map(Field::getType)
                 .findFirst().orElseThrow(() -> new RuntimeException("No such field found"));
@@ -69,6 +69,10 @@ public class ReflectionServiceImpl implements ReflectionService {
         addToTopStack(innerObject);
     }
 
+    @Override
+    public void completeWorkWithNestedElement() {
+        stack.pop();
+    }
     private Object getCurrentObject() {
         return stack.peek();
     }
@@ -78,6 +82,4 @@ public class ReflectionServiceImpl implements ReflectionService {
         Objects.requireNonNull(object, "Object is null");
         stack.push(object);
     }
-
-
 }
