@@ -15,11 +15,9 @@ public class ReflectionServiceImpl implements ReflectionService {
     private Deque<Object> stack = new ArrayDeque<>();
 
     private Object target;
-    private Class<?> clazz;
 
     @Override
     public void init(Class<?> clazz) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        this.clazz = clazz;
         target = build(clazz);
         stack.clear();
         stack.push(target);
@@ -42,7 +40,7 @@ public class ReflectionServiceImpl implements ReflectionService {
                     return field.getName().equals(fieldName);
                 })
                 .map(Field::getType)
-                .findFirst().orElseThrow(() -> new RuntimeException("No such field found"));
+                .findFirst().orElseThrow(() -> new RuntimeException("No such field found: '%s'".formatted(fieldName)));
     }
 
     private Object build(Class<?> clazz) throws InvocationTargetException, InstantiationException, IllegalAccessException {

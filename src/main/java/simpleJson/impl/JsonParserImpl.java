@@ -11,7 +11,7 @@ import java.util.*;
 
 public class JsonParserImpl implements JsonParser {
     private String json;
-    private int cursor = 0;
+    private int cursor;
     private String currentKey = "";
 
     private Deque<Node> stack = new ArrayDeque<>();
@@ -22,6 +22,8 @@ public class JsonParserImpl implements JsonParser {
 
 
     public ObjectNode parse(String input) {
+        validate(input);
+        cursor = 0;
         rootNode = new ObjectNode("root");
         stack.push(rootNode);
         json = input.substring(1, input.length() - 1);
@@ -33,13 +35,18 @@ public class JsonParserImpl implements JsonParser {
 
     @Override
     public void validate(String json) {
-        if (json == null
-                || json.isBlank()
-                || !json.startsWith("{")
-                || !json.endsWith("}")
-        ) {
-            throw new ParseException("JSON source invalid");
+        if (Objects.isNull(json) || json.isBlank()) throw new ParseException("JSON source invalid");
+        int notStaceSymbol = 0;
+        while (Character.isWhitespace(json.charAt(notStaceSymbol))) {
+            notStaceSymbol++;
         }
+        if (json.charAt(notStaceSymbol) != '{') throw new ParseException("JSON source invalid");
+
+        notStaceSymbol = json.length() - 1;
+        while (Character.isWhitespace(json.charAt(notStaceSymbol))) {
+            notStaceSymbol--;
+        }
+        if (json.charAt(notStaceSymbol) != '}') throw new ParseException("JSON source invalid");
     }
 
     private boolean hasNext() {

@@ -17,6 +17,7 @@ public class ProductDto {
     private Double price;
     private boolean sale;
     private Supplier supplier;
+    @JsonField(fieldName = "inBox")
     private List<Gadget> inBoxGadget;
     private List<String> availableFunctions;
 }

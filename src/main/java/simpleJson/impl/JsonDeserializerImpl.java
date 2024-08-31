@@ -16,27 +16,19 @@ import java.util.*;
 
 public class JsonDeserializerImpl implements JsonDeserializer {
     private final JsonParser jsonParser;
-
-    private ReflectionService reflectionService = new ReflectionServiceImpl();
+    private final ReflectionService reflectionService = new ReflectionServiceImpl();
     private ObjectNode rootNode;
-
-
-    private Map<String, JsonTypeDeserializer> jsonTypeDeserializerMap;
+    private final Map<String, JsonTypeDeserializer> jsonTypeDeserializerMap;
 
     public JsonDeserializerImpl(JsonParser jsonParser, List<JsonTypeDeserializer> typeDeserializers) {
         this.jsonParser = jsonParser;
 
         this.jsonTypeDeserializerMap = new HashMap<>();
-        typeDeserializers.stream().forEach(typeDeserializer -> {
-            this.jsonTypeDeserializerMap.put(typeDeserializer.getType(), typeDeserializer);
-        });
+        typeDeserializers.forEach(typeDeserializer -> this.jsonTypeDeserializerMap.put(typeDeserializer.getType(), typeDeserializer));
     }
 
     @Override
     public <T> T deserialize(String json, Class<T> clazz) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        // TODO исправить ошибки
-        // validate(json);
-
         rootNode = jsonParser.parse(json);
         reflectionService.init(clazz);
         initDeserialize();
@@ -50,20 +42,17 @@ public class JsonDeserializerImpl implements JsonDeserializer {
     }
 
     private void initDeserialize() {
-        rootNode.getChildren().entrySet()
-                .forEach(entry -> {
-                    String fieldName = entry.getKey();
-                    Node node = entry.getValue();
-                    try {
-                        doSome(fieldName, node);
-                    } catch (InvocationTargetException | IllegalAccessException | InstantiationException |
-                             ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        rootNode.getChildren().forEach((fieldName, node) -> {
+            try {
+                handleNodeByNodeType(fieldName, node);
+            } catch (InvocationTargetException | IllegalAccessException | InstantiationException |
+                     ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    private void doSome(String fieldName, Node node) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+    private void handleNodeByNodeType(String fieldName, Node node) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         Objects.requireNonNull(node, "Node is null");
 
         if (node instanceof ValueNode valueNode) {
@@ -78,17 +67,14 @@ public class JsonDeserializerImpl implements JsonDeserializer {
     private void handle(ObjectNode objectNode) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         String fieldName = objectNode.getName();
         reflectionService.createInnerObjectByFieldName(fieldName);
-        objectNode.getChildren().entrySet().forEach(entry -> {
-                    String fName = entry.getKey();
-                    Node node = entry.getValue();
-                    try {
-                        doSome(fName, node);
-                    } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
-                             ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-        );
+        objectNode.getChildren().forEach((fName, node) -> {
+            try {
+                handleNodeByNodeType(fName, node);
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                     ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
         reflectionService.completeWorkWithNestedElement();
     }
 
@@ -109,15 +95,8 @@ public class JsonDeserializerImpl implements JsonDeserializer {
         List<Node> valueList = arrayNode.getChildNodes();
         if(valueList.isEmpty()) return;
         reflectionService.createInnerObjectByFieldName(listFieldName);
-        valueList.stream().forEach(element -> {
-            reflectionService.addElementToCurrentCollection(element);
-        });
+        valueList.forEach(reflectionService::addElementToCurrentCollection);
         reflectionService.completeWorkWithNestedElement();
-    }
-
-
-    private void validate(String json) {
-        this.jsonParser.validate(json);
     }
 
     private Object mapPrimitive(Class<?> primitiveType, String value) {

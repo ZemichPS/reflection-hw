@@ -2,6 +2,7 @@ package model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import simpleJson.api.JsonField;
 
 @Data
 @NoArgsConstructor

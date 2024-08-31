@@ -1,18 +1,23 @@
-import model.Person;
-import model.Product;
 import model.ProductDto;
 import simpleJson.api.JsonDeserializer;
+import simpleJson.api.JsonParser;
 import simpleJson.impl.JsonDeserializerImpl;
 import simpleJson.impl.JsonParserImpl;
 import simpleJson.impl.typedes.*;
+import simpleJson.structure.ObjectNode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        JsonParser jsonParser = new JsonParserImpl();
+        ObjectNode rootNode = jsonParser.parse(getSuperHardSource());
+        System.out.println(rootNode);
+
         JsonDeserializer jsonDeserializer = new JsonDeserializerImpl(
-                new JsonParserImpl(),
+                jsonParser,
                 List.of(
                         new BooleanDeserializer(),
                         new StringDeserializer(),
@@ -21,6 +26,7 @@ public class Main {
                         new UUIDDeserializer()
                 )
         );
+
 
         final ProductDto product = jsonDeserializer.deserialize(testSimpleSourceWithInheritance(), ProductDto.class);
         System.out.println(product);
@@ -39,7 +45,7 @@ public class Main {
                      "name": "Tech Supplier Inc.",
                      "description": "Leading supplier of electronic devices"
                    },
-                   "inBoxGadget": [
+                   "inBox": [
                      {
                        "id": 1,
                        "name": "Charger",
@@ -67,7 +73,7 @@ public class Main {
                 """;
     }
 
-      static String getSuperHard() {
+    static String getSuperHardSource() {
         return """
                 {
                   "id": 1,
