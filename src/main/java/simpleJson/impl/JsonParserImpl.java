@@ -33,10 +33,10 @@ public class JsonParserImpl implements JsonParser {
 
     @Override
     public void validate(String json) {
-        if (json == null ||
-                json.isBlank() ||
-                !json.startsWith("{") ||
-                !json.endsWith("}")
+        if (json == null
+                || json.isBlank()
+                || !json.startsWith("{")
+                || !json.endsWith("}")
         ) {
             throw new ParseException("JSON source invalid");
         }

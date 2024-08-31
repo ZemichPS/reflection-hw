@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class Person {
     private UUID id;
     private String name;

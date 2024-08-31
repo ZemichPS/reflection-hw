@@ -3,6 +3,7 @@ package simpleJson.structure;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ObjectNode extends Node {
 
@@ -20,8 +21,12 @@ public class ObjectNode extends Node {
         children.put(nodeName, node);
     }
 
-    public Node getNode(String nodeName) {
-        return children.get(nodeName);
+    public Optional<Node> getNodeByName(String nodeName) {
+        return Optional.ofNullable(children.get(nodeName));
+    }
+
+    public Map<String, Node> getChildren() {
+        return children;
     }
 
     public String getName() {

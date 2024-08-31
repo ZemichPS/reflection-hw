@@ -1,10 +1,38 @@
-import simpleJson.api.JsonParser;
+import model.Person;
+import model.Product;
+import simpleJson.api.JsonDeserializer;
+import simpleJson.impl.JsonDeserializerImpl;
 import simpleJson.impl.JsonParserImpl;
-import simpleJson.structure.ObjectNode;
+import simpleJson.impl.typedes.*;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        JsonDeserializer jsonDeserializer = new JsonDeserializerImpl(
+                new JsonParserImpl(),
+                List.of(
+                        new BooleanDeserializer(),
+                        new StringDeserializer(),
+                        new IntegerDeserializer(),
+                        new DoubleDeserializer(),
+                        new UUIDDeserializer()
+                )
+        );
 
+        final Product product = jsonDeserializer.deserialize(testSimpleSource(), Product.class);
+        System.out.println(product);
+    }
+
+    public static String testSimpleSource() {
+        return """
+                  "uuid": "123e4567-e89b-12d3-a456-426614174000",
+                  "name": "Laptop",
+                  "description": "High performance laptop with 16GB RAM and 512GB SSD.",
+                  "price": 999.99,
+                  "sale": true
+                """;
     }
 
     public static String testSource() {

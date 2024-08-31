@@ -4,15 +4,17 @@ import simpleJson.api.JsonTypeDeserializer;
 
 public class DoubleDeserializer implements JsonTypeDeserializer {
     @Override
-    public Double getObject(Object obj) throws IllegalArgumentException {
+    public Double parseObject(Object obj) throws IllegalArgumentException {
         if (obj instanceof Double d){
             return d;
+        } else if (obj instanceof String s){
+            return Double.parseDouble(s);
         }
         throw new IllegalArgumentException("Type error. Actual type: " + obj.getClass());
     }
 
     @Override
     public String getType() {
-        return "Double";
+        return "java.lang.Double";
     }
 }

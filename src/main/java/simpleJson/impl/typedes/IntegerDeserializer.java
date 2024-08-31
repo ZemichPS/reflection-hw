@@ -4,7 +4,7 @@ import simpleJson.api.JsonTypeDeserializer;
 
 public class IntegerDeserializer implements JsonTypeDeserializer {
     @Override
-    public Integer getObject(Object obj) throws IllegalArgumentException {
+    public Integer parseObject(Object obj) throws IllegalArgumentException {
         if (obj instanceof Integer integer){
             return integer;
         }
@@ -13,6 +13,6 @@ public class IntegerDeserializer implements JsonTypeDeserializer {
 
     @Override
     public String getType() {
-        return "Integer";
+        return "java.lang.Integer";
     }
 }

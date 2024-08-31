@@ -2,9 +2,10 @@ package model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class Address {
     private String street;
     private String city;
