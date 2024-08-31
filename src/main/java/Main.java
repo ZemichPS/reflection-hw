@@ -29,184 +29,45 @@ public class Main {
     public static String testSimpleSourceWithInheritance() {
         return """
                 {
-                  "uuid": "b2c9a558-7b41-4d5e-8f62-7e4f522fa828",
-                  "name": "Smartphone",
-                  "description": "Latest model smartphone with advanced features",
-                  "price": 699.99,
-                  "sale": true,
-                  "supplier": {
-                    "id": 12345,
-                    "name": "Tech Supplies Inc.",
-                    "description": "Leading supplier of electronic gadgets"
-                  }
-                }
-                """;
-    }
-
-    public static String testSimpleSource() {
-        return """
-                  "uuid": "123e4567-e89b-12d3-a456-426614174000",
-                  "name": "Laptop",
-                  "description": "High performance laptop with 16GB RAM and 512GB SSD.",
-                  "price": 999.99,
-                  "sale": true
-                """;
-    }
-
-    public static String testSource() {
-        return """
-                {
-                  "id": "c0a801b3-16c4-42a8-b49a-122b93ff7a31",
-                  "name": "John Doe",
-                  "age": 35,
-                  "address": {
-                    "street": "123 Main St",
-                    "city": "Springfield",
-                    "country": "USA",
-                    "buildingNumber": "4A",
-                    "postalCode": 12345
-                  },
-                  "permissions": [
-                    "READ_REPORT",
-                    "WRITE_REPORT",
-                    "EDIT_REPORT"
-                  ]
-                }
-                """;
-    }
-
-
-    static String getHardSource() {
-        return """
-                {
-                   "customer_id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
-                   "customer_name": "Valeriy Hvasko",
-                   "customer_address": "123 Main Street",
-                   "is_man": true,
-                   "has_children": false,
-                   "age": 32,
-                   "permissions": [
-                     "create_report_scope",
-                     "read_report_scope",
-                     "edit_report_scope"
-                   ],
-                    "address": {
-                    "city": "Ostrovec",
-                    "region": "Grono",
-                    "zip": 231201
-                  },
-                   "product_list": [
+                   "uuid": "123e4567-e89b-12d3-a456-426614174000",
+                   "name": "Smartphone",
+                   "description": "Latest model smartphone with advanced features",
+                   "price$": 799.99,
+                   "sale": true,
+                   "supplier": {
+                     "id": 98765,
+                     "name": "Tech Supplier Inc.",
+                     "description": "Leading supplier of electronic devices"
+                   },
+                   "inBoxGadget": [
                      {
-                       "id": "d2b2e4a7-1c2c-4b9c-bd22-0d8415f5a571",
-                       "name": "Laptop",
-                       "price": 999.99,
-                       "quantity": 1
+                       "id": 1,
+                       "name": "Charger",
+                       "description": "Fast charging adapter"
                      },
                      {
-                       "id": "a6a8b38c-58ec-49cb-944e-f0158b2a70a8",
-                       "name": "Mouse",
-                       "price": 49.99,
-                       "quantity": 2
+                       "id": 2,
+                       "name": "Earphones",
+                       "description": "High-quality in-ear headphones"
+                     },
+                     {
+                       "id": 3,
+                       "name": "USB Cable",
+                       "description": "USB Type-C charging cable"
                      }
+                   ],
+                   "availableFunctions": [
+                     "Bluetooth",
+                     "WiFi",
+                     "GPS",
+                     "NFC",
+                     "Face Recognition"
                    ]
-                }
+                 }
                 """;
     }
 
-    static String getSourceLight() {
-        return """
-                {
-                  "customer_id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
-                  "customer_name": "Valeriy Hvasko",
-                  "customer_address": "123 Main Street",
-                  "age": 32,
-                  "address": {
-                    "city": "Ostrovec",
-                    "region": "Grono",
-                    "zip": 231201
-                  },
-                  "permissions": [
-                    "create_report_scope",
-                    "read_report_scope",
-                    "edit_report_scope"
-                  ]
-                }
-                """;
-    }
-
-    static String getMiddleSource() {
-        return """
-                
-                  "company": {
-                    "name": "Tech Innovators Inc.",
-                    "address": {
-                      "street": "123 Innovation Way",
-                      "city": "Silicon Valley",
-                      "state": "CA",
-                      "zipCode": "94043"
-                    },
-                    "departments": [
-                      {
-                        "id": 101,
-                        "name": "Engineering",
-                        "manager": {
-                          "name": "Alice Johnson",
-                          "email": "alice.johnson@techinnovators.com"
-                        },
-                        "employees": [
-                          {
-                            "id": 1,
-                            "name": "John Doe",
-                            "role": "Software Engineer",
-                            "skills": ["Java", "Python", "Cloud Computing"]
-                          },
-                          {
-                            "id": 2,
-                            "name": "Jane Smith",
-                            "role": "DevOps Engineer",
-                            "skills": ["AWS", "Docker", "CI/CD"]
-                          }
-                        ]
-                      },
-                      {
-                        "id": 102,
-                        "name": "Marketing",
-                        "manager": {
-                          "name": "Bob Williams",
-                          "email": "bob.williams@techinnovators.com"
-                        },
-                        "employees": [
-                          {
-                            "id": 3,
-                            "name": "Emily Davis",
-                            "role": "Marketing Specialist",
-                            "skills": ["SEO", "Content Marketing", "Social Media"]
-                          }
-                        ]
-                      }
-                    ],
-                    "projects": [
-                      {
-                        "id": 1001,
-                        "name": "AI Research",
-                        "departmentId": 101,
-                        "budget": 500000,
-                        "status": "In Progress"
-                      },
-                      {
-                        "id": 1002,
-                        "name": "New Website Launch",
-                        "departmentId": 102,
-                        "budget": 150000,
-                        "status": "Completed"
-                      }
-                    ]
-                  }
-                }
-                """;
-    }
-
-    static String getSuperHard() {
+      static String getSuperHard() {
         return """
                 {
                   "id": 1,

@@ -39,7 +39,7 @@ public class JsonDeserializerImpl implements JsonDeserializer {
 
         rootNode = jsonParser.parse(json);
         reflectionService.init(clazz);
-        doWork();
+        initDeserialize();
         Object targetObject = reflectionService.getTargetObject();
         return clazz.cast(targetObject);
     }
@@ -49,20 +49,21 @@ public class JsonDeserializerImpl implements JsonDeserializer {
         jsonTypeDeserializerMap.put(deserializer.getType(), deserializer);
     }
 
-    private void doWork() {
+    private void initDeserialize() {
         rootNode.getChildren().entrySet()
                 .forEach(entry -> {
                     String fieldName = entry.getKey();
                     Node node = entry.getValue();
                     try {
                         doSome(fieldName, node);
-                    } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+                    } catch (InvocationTargetException | IllegalAccessException | InstantiationException |
+                             ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                 });
     }
 
-    private void doSome(String fieldName, Node node) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void doSome(String fieldName, Node node) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         Objects.requireNonNull(node, "Node is null");
 
         if (node instanceof ValueNode valueNode) {
@@ -71,10 +72,10 @@ public class JsonDeserializerImpl implements JsonDeserializer {
             handle(objectNode);
         } else if (node instanceof ArrayNode arrayNode) {
             handle(arrayNode);
-        } else new DeserializeException("Node is not recognized");
+        } else throw new DeserializeException("Node is not recognized");
     }
 
-    private void handle(ObjectNode objectNode) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void handle(ObjectNode objectNode) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         String fieldName = objectNode.getName();
         reflectionService.createInnerObjectByFieldName(fieldName);
         objectNode.getChildren().entrySet().forEach(entry -> {
@@ -82,7 +83,8 @@ public class JsonDeserializerImpl implements JsonDeserializer {
                     Node node = entry.getValue();
                     try {
                         doSome(fName, node);
-                    } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                    } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                             ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -102,15 +104,21 @@ public class JsonDeserializerImpl implements JsonDeserializer {
         reflectionService.setValueToField(fieldName, value);
     }
 
-    private Object handle(ArrayNode arrayNode) {
-        return null;
+    private void handle(ArrayNode arrayNode) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+        String listFieldName = arrayNode.getName();
+        List<Node> valueList = arrayNode.getChildNodes();
+        if(valueList.isEmpty()) return;
+        reflectionService.createInnerObjectByFieldName(listFieldName);
+        valueList.stream().forEach(element -> {
+            reflectionService.addElementToCurrentCollection(element);
+        });
+        reflectionService.completeWorkWithNestedElement();
     }
 
 
     private void validate(String json) {
         this.jsonParser.validate(json);
     }
-
 
     private Object mapPrimitive(Class<?> primitiveType, String value) {
         if (primitiveType == int.class) {

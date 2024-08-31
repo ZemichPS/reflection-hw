@@ -11,7 +11,10 @@ public interface ReflectionService {
 
     void setValueToField(String fieldName, Object value) throws IllegalAccessException;
 
-    void createInnerObjectByFieldName(String fieldName) throws InvocationTargetException, InstantiationException, IllegalAccessException;
+    void createInnerObjectByFieldName(String fieldName) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException;
+
     void completeWorkWithNestedElement();
+
+    void addElementToCurrentCollection(Object element);
 
 }

@@ -16,7 +16,7 @@ public class ArrayNode extends Node{
         childNodes.add(node);
     }
 
-    private List<Node> getChildNodes() {
+    public List<Node> getChildNodes() {
         return new ArrayList<>(childNodes);
     }
 
