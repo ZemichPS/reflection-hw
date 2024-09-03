@@ -1,7 +1,9 @@
 package simpleJson.impl;
 
 import simpleJson.api.JsonParser;
+import simpleJson.api.ValidationService;
 import simpleJson.exception.ParseException;
+import simpleJson.impl.services.ValidationServiceImpl;
 import simpleJson.structure.ArrayNode;
 import simpleJson.structure.Node;
 import simpleJson.structure.ObjectNode;
@@ -13,13 +15,13 @@ public class JsonParserImpl implements JsonParser {
     private String json;
     private int cursor;
     private String currentKey = "";
+    private final ValidationService validationService = new ValidationServiceImpl();
 
     private Deque<Node> stack = new ArrayDeque<>();
     private ObjectNode rootNode = null;
 
     private String EMPTY_TOKEN_KEY_ERROR_MESSAGE = "The parser encountered an unexpected scenario. Key is empty";
     private String STACK_IS_EMPTY_ERROR_MESSAGE = "The parser encountered an unexpected scenario. Stack is empty";
-
 
     public ObjectNode parse(String input) {
         validate(input);
@@ -29,31 +31,20 @@ public class JsonParserImpl implements JsonParser {
         json = input.substring(1, input.length() - 1);
         json = json.trim()
                 .replaceAll("\\s{2,}", "");
-        doWork();
+        doNext();
         return rootNode;
     }
 
     @Override
     public void validate(String json) {
-        if (Objects.isNull(json) || json.isBlank()) throw new ParseException("JSON source invalid");
-        int notStaceSymbol = 0;
-        while (Character.isWhitespace(json.charAt(notStaceSymbol))) {
-            notStaceSymbol++;
-        }
-        if (json.charAt(notStaceSymbol) != '{') throw new ParseException("JSON source invalid");
-
-        notStaceSymbol = json.length() - 1;
-        while (Character.isWhitespace(json.charAt(notStaceSymbol))) {
-            notStaceSymbol--;
-        }
-        if (json.charAt(notStaceSymbol) != '}') throw new ParseException("JSON source invalid");
+        validationService.validate(json);
     }
 
     private boolean hasNext() {
         return cursor < json.length() - 1;
     }
 
-    private void doWork() {
+    private void doNext() {
         while (hasNext()) {
             switch (json.charAt(cursor)) {
                 case '"' -> handleMemberName();
@@ -74,7 +65,7 @@ public class JsonParserImpl implements JsonParser {
         addToCurrentObjectNote(newobjectNode);
         stack.push(newobjectNode);
         currentKey = "";
-        doWork();
+        doNext();
     }
 
     private void handleEndJsonObject() {
@@ -165,7 +156,7 @@ public class JsonParserImpl implements JsonParser {
             stack.push(arrayNode);
             currentKey = "";
             cursor++;
-            doWork();
+            doNext();
         }
         cursor++;
 

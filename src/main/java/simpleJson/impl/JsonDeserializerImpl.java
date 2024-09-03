@@ -5,7 +5,7 @@ import simpleJson.api.JsonDeserializer;
 import simpleJson.api.JsonParser;
 import simpleJson.api.JsonTypeDeserializer;
 import simpleJson.exception.DeserializeException;
-import simpleJson.services.ReflectionServiceImpl;
+import simpleJson.impl.services.ReflectionServiceImpl;
 import simpleJson.structure.ArrayNode;
 import simpleJson.structure.Node;
 import simpleJson.structure.ObjectNode;
