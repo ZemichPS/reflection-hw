@@ -13,7 +13,6 @@ import java.util.*;
 public class ReflectionServiceImpl implements ReflectionService {
 
     private Deque<Object> stack = new ArrayDeque<>();
-
     private Object target;
 
     @Override
@@ -77,8 +76,8 @@ public class ReflectionServiceImpl implements ReflectionService {
         if (clazz.isInterface()) {
             String interfaceName = clazz.getTypeName();
             if (interfaceName.equals("java.util.List")) {
-                Class<?> ArraylistClass = Class.forName("java.util.ArrayList");
-                innerObject = build(ArraylistClass);
+                Class<?> arraylistClass = Class.forName("java.util.ArrayList");
+                innerObject = build(arraylistClass);
             }
         } else innerObject = build(clazz);
 

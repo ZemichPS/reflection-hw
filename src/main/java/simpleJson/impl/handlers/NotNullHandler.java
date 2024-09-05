@@ -9,7 +9,10 @@ public class NotNullHandler implements Handler {
     @Override
     public void handle(String json, Handler nextHandler) {
         if (isValid(json)) throw new InvalidJsonException("Source is null");
-        nextHandler.handle(json, nextHandler);
+
+        if (Objects.nonNull(nextHandler)) {
+            nextHandler.handle(json, nextHandler);
+        }
     }
 
     private boolean isValid(String json) {

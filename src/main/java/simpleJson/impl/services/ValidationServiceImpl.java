@@ -16,9 +16,9 @@ public class ValidationServiceImpl implements ValidationService {
     public ValidationServiceImpl() {
         this.chain = (json, next) ->
                 notNullHandler.handle(json,
-                        (j1, n1) -> notEmptyHandler.handle(j1,
-                                (j2, n2) -> invalidStructureHandler.handle(j2,
-                                        (j3, n3) -> nullHandler.handle(j3, null))));
+                        (r1, n1) -> notEmptyHandler.handle(r1,
+                                (r2, n2) -> invalidStructureHandler.handle(r2,
+                                        (r3, n3) -> nullHandler.handle(json, null))));
     }
 
     @Override

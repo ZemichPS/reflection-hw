@@ -35,7 +35,7 @@ public class JsonParserImpl implements JsonParser {
         return rootNode;
     }
 
-    @Override
+
     public void validate(String json) {
         validationService.validate(json);
     }

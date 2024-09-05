@@ -40,8 +40,8 @@ public class ObjectNode extends Node {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if(Objects.nonNull(name)) sb.append(": ").append(name);
-        sb.append(":").append(children);
+        if(Objects.nonNull(name)) sb.append(name).append(":");
+        sb.append(children);
         return sb.toString();
     }
 }
